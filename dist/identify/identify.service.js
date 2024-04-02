@@ -29,7 +29,7 @@ let IdentifyService = class IdentifyService {
                 ],
             },
             orderBy: {
-                createdAt: 'asc',
+                createdAt: "asc",
             },
         });
         const countExistingDataOflinkPrecedence = (await this.prisma.contact.count({
@@ -42,7 +42,7 @@ let IdentifyService = class IdentifyService {
                         phoneNumber: createIdentifyDto.phoneNumber,
                     },
                 ],
-                linkPrecedence: 'Primary',
+                linkPrecedence: "Primary",
             },
         })) == 1;
         const collectDate = [];
@@ -53,23 +53,34 @@ let IdentifyService = class IdentifyService {
                 const ele = findExistingData[i];
                 if ((ele.email != createIdentifyDto.email ||
                     ele.phoneNumber != createIdentifyDto.phoneNumber) &&
-                    ele.linkPrecedence != 'Secondary' &&
-                    ele.linkPrecedence == 'Primary' &&
+                    ele.linkPrecedence != "Secondary" &&
+                    ele.linkPrecedence == "Primary" &&
                     ele.linkedId == null &&
                     countExistingDataOflinkPrecedence) {
-                    await this.prisma.contact.create({
-                        data: {
+                    const findSecondaryData = await this.prisma.contact.findFirst({
+                        where: {
                             email: createIdentifyDto.email,
                             phoneNumber: createIdentifyDto.phoneNumber,
-                            linkPrecedence: 'Secondary',
-                            linkedId: ele.id,
+                            linkPrecedence: "Secondary",
                         },
                     });
+                    if (!findSecondaryData &&
+                        (ele.email != createIdentifyDto.email ||
+                            ele.phoneNumber != createIdentifyDto.phoneNumber)) {
+                        await this.prisma.contact.create({
+                            data: {
+                                email: createIdentifyDto.email,
+                                phoneNumber: createIdentifyDto.phoneNumber,
+                                linkPrecedence: "Secondary",
+                                linkedId: ele.id,
+                            },
+                        });
+                    }
                     break;
                 }
                 else if ((ele.email == createIdentifyDto.email ||
                     ele.phoneNumber == createIdentifyDto.phoneNumber) &&
-                    ele.linkPrecedence == 'Primary' &&
+                    ele.linkPrecedence == "Primary" &&
                     ele.linkedId == null) {
                     collectDate.push(new Date(ele.createdAt));
                 }
@@ -83,7 +94,7 @@ let IdentifyService = class IdentifyService {
             const findExistingDataByMinDate = await this.prisma.contact.findFirst({
                 where: {
                     createdAt: minDate,
-                    linkPrecedence: 'Primary',
+                    linkPrecedence: "Primary",
                     linkedId: null,
                     OR: [
                         {
@@ -103,7 +114,7 @@ let IdentifyService = class IdentifyService {
                     },
                     data: {
                         linkedId: findExistingDataByMinDate.id,
-                        linkPrecedence: 'Secondary',
+                        linkPrecedence: "Secondary",
                     },
                 });
                 await this.prisma.contact.updateMany({
@@ -112,7 +123,7 @@ let IdentifyService = class IdentifyService {
                     },
                     data: {
                         linkedId: findExistingDataByMinDate.id,
-                        linkPrecedence: 'Secondary',
+                        linkPrecedence: "Secondary",
                     },
                 });
             });
@@ -124,7 +135,7 @@ let IdentifyService = class IdentifyService {
                 data: {
                     email: createIdentifyDto.email,
                     phoneNumber: createIdentifyDto.phoneNumber,
-                    linkPrecedence: 'Primary',
+                    linkPrecedence: "Primary",
                 },
             });
         }
@@ -140,7 +151,7 @@ let IdentifyService = class IdentifyService {
                 ],
             },
             orderBy: {
-                createdAt: 'asc',
+                createdAt: "asc",
             },
         });
         const linkedIdFromData = findingUpdateExistingData.map((ele) => {
@@ -149,7 +160,7 @@ let IdentifyService = class IdentifyService {
             }
         });
         const idOfExistData = findingUpdateExistingData.map((ele) => {
-            if (ele.linkPrecedence == 'Primary') {
+            if (ele.linkPrecedence == "Primary") {
                 return ele.id;
             }
         });
@@ -198,7 +209,7 @@ let IdentifyService = class IdentifyService {
                     !updateData.phoneNumbers.includes(ele.phoneNumber.toString())) {
                     updateData.phoneNumbers.push(ele.phoneNumber.toString());
                 }
-                if (ele.linkPrecedence == 'Secondary' &&
+                if (ele.linkPrecedence == "Secondary" &&
                     !updateData.secondaryContactIds.push(ele.id)) {
                     updateData.secondaryContactIds.push(ele.id);
                 }

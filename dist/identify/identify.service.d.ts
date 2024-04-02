@@ -1,5 +1,5 @@
-import { CreateIdentifyDto } from './dto/create-identify.dto';
-import { PrismaService } from 'src/database/db';
+import { CreateIdentifyDto } from "./dto/create-identify.dto";
+import { PrismaService } from "src/database/db";
 export declare class IdentifyService {
     private readonly prisma;
     constructor(prisma: PrismaService);
