@@ -13,11 +13,11 @@ exports.IdentifyService = void 0;
 const common_1 = require("@nestjs/common");
 const db_1 = require("../database/db");
 let IdentifyService = class IdentifyService {
-    constructor(primsa) {
-        this.primsa = primsa;
+    constructor(prisma) {
+        this.prisma = prisma;
     }
     async create(createIdentifyDto) {
-        const findExistingData = await this.primsa.contact.findMany({
+        const findExistingData = await this.prisma.contact.findMany({
             where: {
                 OR: [
                     {
@@ -32,7 +32,7 @@ let IdentifyService = class IdentifyService {
                 createdAt: 'asc',
             },
         });
-        const countExistingDataOflinkPrecedence = (await this.primsa.contact.count({
+        const countExistingDataOflinkPrecedence = (await this.prisma.contact.count({
             where: {
                 OR: [
                     {
@@ -57,7 +57,7 @@ let IdentifyService = class IdentifyService {
                     ele.linkPrecedence == 'Primary' &&
                     ele.linkedId == null &&
                     countExistingDataOflinkPrecedence) {
-                    await this.primsa.contact.create({
+                    await this.prisma.contact.create({
                         data: {
                             email: createIdentifyDto.email,
                             phoneNumber: createIdentifyDto.phoneNumber,
@@ -80,7 +80,7 @@ let IdentifyService = class IdentifyService {
             const pushIdentifyId = findExistingData.map((ele) => {
                 return ele.id;
             });
-            const findExistingDataByMinDate = await this.primsa.contact.findFirst({
+            const findExistingDataByMinDate = await this.prisma.contact.findFirst({
                 where: {
                     createdAt: minDate,
                     linkPrecedence: 'Primary',
@@ -97,7 +97,7 @@ let IdentifyService = class IdentifyService {
             });
             const filteredId = pushIdentifyId.filter((number) => number !== findExistingDataByMinDate.id);
             filteredId.map(async (ele) => {
-                await this.primsa.contact.updateMany({
+                await this.prisma.contact.updateMany({
                     where: {
                         id: ele,
                     },
@@ -106,7 +106,7 @@ let IdentifyService = class IdentifyService {
                         linkPrecedence: 'Secondary',
                     },
                 });
-                await this.primsa.contact.updateMany({
+                await this.prisma.contact.updateMany({
                     where: {
                         linkedId: ele,
                     },
@@ -120,7 +120,7 @@ let IdentifyService = class IdentifyService {
         if (findExistingData.length == 0 &&
             createIdentifyDto.email != null &&
             createIdentifyDto.phoneNumber != null) {
-            await this.primsa.contact.create({
+            await this.prisma.contact.create({
                 data: {
                     email: createIdentifyDto.email,
                     phoneNumber: createIdentifyDto.phoneNumber,
@@ -128,7 +128,7 @@ let IdentifyService = class IdentifyService {
                 },
             });
         }
-        const findingUpdateExistingData = await this.primsa.contact.findMany({
+        const findingUpdateExistingData = await this.prisma.contact.findMany({
             where: {
                 OR: [
                     {
@@ -171,7 +171,7 @@ let IdentifyService = class IdentifyService {
                     },
                 ],
             };
-            const filteredResponse = await this.primsa.contact.findMany({
+            const filteredResponse = await this.prisma.contact.findMany({
                 where: filter,
             });
             filteredResponse.forEach((ele1) => {
